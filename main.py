@@ -13,7 +13,6 @@ iterations = 100_000
 
 
 def _derive_key(password: bytes, salt: bytes, iterations: int = iterations) -> bytes:
-    """Derive a secret key from a given password and salt"""
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(), length=32, salt=salt,
         iterations=iterations, backend=backend)
@@ -38,9 +37,6 @@ def password_decrypt(token: bytes, password: str) -> bytes:
     return Fernet(key).decrypt(token)
 
 def generate_key():
-    """
-    Generates a key and save it into a file
-    """
     key = Fernet.generate_key()
     with open("secret.key", "wb") as key_file:
         key_file.write(key)
@@ -48,15 +44,9 @@ def generate_key():
     print("Done")
 
 def load_key():
-    """
-    Load the previously generated key
-    """
     return open("secret.key", "rb").read()
 
 def encrypt_message(message):
-    """
-    Encrypts a message
-    """
     key = load_key()
     encoded_message = message.encode()
     f = Fernet(key)
@@ -65,21 +55,45 @@ def encrypt_message(message):
     return encrypted_message
 
 
-def load_key():
-    """
-    Load the previously generated key
-    """
-    return open("secret.key", "rb").read()
 
 def decrypt_message(encrypted_message):
-    """
-    Decrypts an encrypted message
-    """
     key = load_key()
     f = Fernet(key)
-    decrypted_message = f.decrypt(encrypted_message)
+    decrypted_message = f.decrypt(str.encode(encrypted_message))
+    return decrypted_message
 
-    print(decrypted_message.decode())
+
+def encrypt_file(filename):
+    key = load_key()
+    l = Fernet(key)
+
+    input_file = filename
+    output_file = "enc_" + filename
+
+    with open(input_file, 'rb') as f:
+        data = f.read()  # Read the bytes of the input file
+    encrypted = l.encrypt(data)
+
+    with open(output_file, 'wb') as f:
+        f.write(encrypted)  # Write the encrypted bytes to the output file
+
+    print("DONE")
+
+
+def decrypt_file(filename):
+    key = load_key()
+    l = Fernet(key)
+
+    with open(filename, "rb") as file:
+        encrypted_data = file.read()
+
+    decrypted_data = l.decrypt(encrypted_data)
+    with open("dec_" + filename, "wb") as file:
+        file.write(decrypted_data)
+
+    print("DONE")
+
+    
 
 def dummy():
     pass
@@ -92,6 +106,11 @@ def scroll(thing,dela=.04):
     print("")
 
 
+
+
+
+
+
 def runencryptstr():
     scroll("ENTER INPUT TO ENCRYPT")
     message = input(">")
@@ -101,24 +120,33 @@ def runencryptstr():
 def rundecryptstr():
     scroll("ENTER INPUT TO DECRYPT")
     message = input(">")
-    message = decrypt_message(message.encode())
+    message = decrypt_message(message)
     print(message)
 
+def runencryptfile():
+    scroll("ENTER FILENAME TO ENCRYPT")
+    filename = input(">")
+    encrypt_file(filename)
 
-
+def rundecryptfile():
+    scroll("ENTER FILENAME TO DECRYPT")
+    filename = input(">")
+    decrypt_file(filename)
 
 def main():
-    scroll("Welcome to the encryptor")
-    time.sleep(1)
+    os.system("cls")
+    scroll("**ENCRYPTOR**")
+    scroll("MAKE SURE A KEY FILE IS PRESENT IN THE WORKING DIRECTORY")
+    scroll("IF A NEW KEY IS GENERATED THE CURRENT KEY WILL BE OVERWRITTEN")
+    print("***********************************")
     scroll("MODES:")
-    time.sleep(1)
     scroll("1: FILE_ENC")
     scroll("2: FILE_DEC")
     scroll("3: STR_ENC")
     scroll("4: STR_DEC")
     scroll("5: GENERATE NEW KEY")
 
-    inpcase = {1: dummy, 2: dummy, 3: runencryptstr, 4: rundecryptstr, 5: generate_key}
+    inpcase = {1: runencryptfile, 2: rundecryptfile, 3: runencryptstr, 4: rundecryptstr, 5: generate_key}
     while True:
         
         a = int(input(">>>"))
@@ -126,9 +154,4 @@ def main():
         func()
 
 
-
-
-
-    
-
-#main()
+main()
