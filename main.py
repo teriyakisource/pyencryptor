@@ -43,11 +43,11 @@ def encrypt_file(filename):
     output_file = "enc_" + filename
 
     with open(input_file, 'rb') as f:
-        data = f.read()  # Read the bytes of the input file
+        data = f.read()  
     encrypted = l.encrypt(data)
 
     with open(output_file, 'wb') as f:
-        f.write(encrypted)  # Write the encrypted bytes to the output file
+        f.write(encrypted)  
 
     print("DONE")
 
